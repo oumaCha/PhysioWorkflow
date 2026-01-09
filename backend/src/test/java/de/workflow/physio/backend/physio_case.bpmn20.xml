@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://physioflow/bpmn">
+
+    <process id="physio_case_v1" name="Physiotherapy Case (Germany) - v1" isExecutable="true">
+
+        <!-- =========================
+             Start
+             ========================= -->
+        <startEvent id="start" name="Prescription received" />
+        <sequenceFlow id="sf_start_to_rx" sourceRef="start" targetRef="rxCheck" />
+
+        <!-- =========================
+             ADMIN: Prescription check
+             ========================= -->
+        <userTask id="rxCheck"
+                  name="Prescription Check (Muster 13)"
+                  flowable:candidateGroups="ADMIN" />
+        <sequenceFlow id="sf_rx_to_gw_rxValid" sourceRef="rxCheck" targetRef="gw_rxValid" />
+
+        <!-- Valid / invalid prescription decision -->
+        <exclusiveGateway id="gw_rxValid" name="Prescription valid?" />
+
+        <!-- If valid -->
+        <sequenceFlow id="sf_gw_rxValid_yes" sourceRef="gw_rxValid" targetRef="assessment">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${rxValid == true}]]></conditionExpression>
+        </sequenceFlow>
+
+        <!-- If invalid -->
+        <sequenceFlow id="sf_gw_rxValid_no" sourceRef="gw_rxValid" targetRef="rxCorrection">
+            <conditionExpression xsi:type="tFormalExpression"><![CDATA[${rxValid == false}]]></conditionExpression>
+        </sequenceFlow>
+
+        <userTask id="rxCorrection"
+                  name="Request Prescription Correction"
+                  flowable:candidateGroups="ADMIN" />
+        <sequenceFlow id="sf_rxCorrection_to_endCanceled" sourceRef="rxCorrection" targetRef="endCanceled" />
+
+        <endEvent id="endCanceled" name="Case canceled (invalid prescription)" />
+
+        <!-- =========================
+             THERAPIST: Initial assessment
+             ========================= -->
+        <userTask id="assessment"
+                  name="Initial Assessment"
+                  flowable:candidateGroups="THERAPIST" />
+        <sequenceFlow id="sf_assessment_to_sessions" sourceRef="assessment" targetRef="sub_sessions" />
+
+        <!-- =========================
+             Subprocess: Therapy sessions
+             ========================= -->
+        <subProcess id="sub_sessions" name="Therapy Sessions">
+
+            <!-- Subprocess start -->
+            <startEvent id="sub_start" name="Start sessions" />
+            <sequenceFlow id="sf_sub_start_to_session" sourceRef="sub_start" targetRef="therapySession" />
+
+            <!-- One therapy session -->
+            <userTask id="therapySession"
+                      name="Therapy Session"
+                      flowable:candidateGroups="THERAPIST" />
+            <sequenceFlow id="sf_session_to_gw_more" sourceRef="therapySession" targetRef="gw_moreSessions" />
+
+            <!-- More sessions? -->
+            <exclusiveGateway id="gw_moreSessions" name="More sessions required?" />
+
+            <!-- YES: loop back -->
+            <sequenceFlow id="sf_more_yes" sourceRef="gw_moreSessions" targetRef="therapySession">
+                <conditionExpression xsi:type="tFormalExpression"><![CDATA[${moreSessions == true}]]></conditionExpression>
+            </sequenceFlow>
+
+            <!-- NO: finish subprocess -->
+            <sequenceFlow id="sf_more_no" sourceRef="gw_moreSessions" targetRef="sub_end">
+                <conditionExpression xsi:type="tFormalExpression"><![CDATA[${moreSessions == false}]]></conditionExpression>
+            </sequenceFlow>
+
+            <endEvent id="sub_end" name="Sessions finished" />
+        </subProcess>
+
+        <!-- Early termination: interrupt the sessions subprocess -->
+        <boundaryEvent id="be_terminateEarly"
+                       name="Early termination requested"
+                       attachedToRef="sub_sessions"
+                       cancelActivity="true">
+            <conditionalEventDefinition>
+                <condition xsi:type="tFormalExpression"><![CDATA[${terminateEarly == true}]]></condition>
+            </conditionalEventDefinition>
+        </boundaryEvent>
+
+        <!-- Normal path after sessions -->
+        <sequenceFlow id="sf_sessions_to_finalDoc" sourceRef="sub_sessions" targetRef="finalDocumentation" />
+
+        <!-- Early termination path -->
+        <sequenceFlow id="sf_earlyTerm_to_earlyDoc" sourceRef="be_terminateEarly" targetRef="earlyTerminationDoc" />
+
+        <!-- =========================
+             Documentation & End states
+             ========================= -->
+        <userTask id="finalDocumentation"
+                  name="Final Documentation"
+                  flowable:candidateGroups="THERAPIST" />
+        <sequenceFlow id="sf_finalDoc_to_endSuccess" sourceRef="finalDocumentation" targetRef="endSuccess" />
+
+        <endEvent id="endSuccess" name="Therapy completed" />
+
+        <userTask id="earlyTerminationDoc"
+                  name="Document Early Termination"
+                  flowable:candidateGroups="THERAPIST" />
+        <sequenceFlow id="sf_earlyDoc_to_endTerminated" sourceRef="earlyTerminationDoc" targetRef="endTerminated" />
+
+        <endEvent id="endTerminated" name="Therapy terminated early" />
+
+    </process>
+</definitions>

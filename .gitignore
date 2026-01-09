@@ -1,0 +1,19 @@
+# Maven
+/target/
+/**/target/
+
+# IDEs
+/.idea/
+/.vscode/
+/*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# H2 database helper files
+/backend/data/*.lock.db
+/backend/data/*.trace.db
