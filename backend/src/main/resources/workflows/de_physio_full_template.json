@@ -1,0 +1,409 @@
+{
+  "meta": {
+    "key": "de.physio.professional_outpatient.full.v2",
+    "name": "Physiotherapie (DE) Vollprozess: Verordnung → Orga/DSGVO → Befund → Therapie (Loop) → Outcome → Bericht/FolgeVO → Abrechnung → Abschluss",
+    "version": 2,
+    "country": "DE",
+    "locale": "de-DE"
+  },
+  "nodes": [
+    { "id": "start", "type": "START", "name": null, "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_prescription_check",
+      "type": "TASK",
+      "name": "Verordnung prüfen (Heilmittel)",
+      "actorRole": "ADMIN",
+      "contextKey": "prescription",
+      "form": {
+        "title": "Verordnung / Heilmittelprüfung",
+        "fields": [
+          { "key": "prescriptionType", "label": "Heilmittel", "type": "select", "options": ["KG", "MT", "MLD", "KGG", "Other"], "required": true },
+          { "key": "icdOrDiagnosis", "label": "Diagnose (optional)", "type": "text", "required": false },
+          { "key": "sessionsPrescribed", "label": "Verordnete Einheiten", "type": "number", "min": 0, "max": 60, "required": true },
+          { "key": "issueDate", "label": "Ausstellungsdatum (Text)", "type": "text", "required": false },
+          { "key": "valid", "label": "Verordnung gültig?", "type": "boolean", "required": true },
+          { "key": "notes", "label": "Hinweise", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    {
+      "id": "t_deadline_check",
+      "type": "TASK",
+      "name": "Fristenprüfung (Heilmittel-Richtlinie)",
+      "actorRole": "ADMIN",
+      "contextKey": "deadlines",
+      "form": {
+        "title": "Fristenprüfung",
+        "fields": [
+          { "key": "startWithinDeadline", "label": "Therapiebeginn fristgerecht?", "type": "boolean", "required": true },
+          { "key": "breakWithinRules", "label": "Behandlungsunterbrechung unkritisch?", "type": "boolean", "required": true },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    {
+      "id": "t_copay_check",
+      "type": "TASK",
+      "name": "Zuzahlung / Befreiung prüfen",
+      "actorRole": "ADMIN",
+      "contextKey": "billingInfo",
+      "form": {
+        "title": "Zuzahlung / Befreiung",
+        "fields": [
+          { "key": "insuredType", "label": "Versicherung", "type": "select", "options": ["GKV", "PKV", "Other"], "required": true },
+          { "key": "copayExempt", "label": "Zuzahlungsbefreit?", "type": "boolean", "required": true },
+          { "key": "copayCollected", "label": "Zuzahlung erhoben?", "type": "boolean", "required": false },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    { "id": "x_prescription_ok", "type": "XOR", "name": "Verordnung & Fristen ok?", "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_close_invalid",
+      "type": "TASK",
+      "name": "Fall schließen (formal nicht möglich)",
+      "actorRole": "ADMIN",
+      "contextKey": "closeInvalid",
+      "form": {
+        "title": "Fallabschluss (formal)",
+        "fields": [
+          { "key": "reason", "label": "Grund", "type": "text", "required": true },
+          { "key": "patientNotified", "label": "Patient informiert", "type": "boolean", "required": false }
+        ]
+      }
+    },
+
+    {
+      "id": "t_intake",
+      "type": "TASK",
+      "name": "Erstaufnahme / Anamnese",
+      "actorRole": "PHYSIO",
+      "contextKey": "intake",
+      "form": {
+        "title": "Erstaufnahme / Anamnese",
+        "fields": [
+          { "key": "mainComplaint", "label": "Hauptbeschwerde", "type": "text", "required": true },
+          { "key": "baselinePain", "label": "Schmerz (0–10)", "type": "number", "min": 0, "max": 10, "required": true },
+          { "key": "history", "label": "Vorgeschichte / Verlauf", "type": "text", "required": false },
+          { "key": "medication", "label": "Medikation (optional)", "type": "text", "required": false },
+          { "key": "goals", "label": "Therapieziele", "type": "text", "required": true },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    {
+      "id": "t_consent",
+      "type": "TASK",
+      "name": "Einwilligung & Datenschutz (DSGVO)",
+      "actorRole": "PATIENT",
+      "contextKey": "consent",
+      "form": {
+        "title": "Einwilligung / Datenschutz",
+        "fields": [
+          { "key": "gdprConsent", "label": "Einwilligung erteilt", "type": "boolean", "required": true },
+          { "key": "contactPermission", "label": "Kontaktaufnahme erlaubt?", "type": "boolean", "required": false },
+          { "key": "signatureName", "label": "Unterschrift (Name)", "type": "text", "required": true }
+        ]
+      }
+    },
+
+    {
+      "id": "t_assessment",
+      "type": "TASK",
+      "name": "Befund / Untersuchung",
+      "actorRole": "PHYSIO",
+      "contextKey": "assessment",
+      "form": {
+        "title": "Befund / Untersuchung",
+        "fields": [
+          { "key": "painScore", "label": "Schmerz (0–10)", "type": "number", "min": 0, "max": 10, "required": true },
+          { "key": "mobility", "label": "Beweglichkeit / ROM", "type": "text", "required": false },
+          { "key": "functionalLimits", "label": "Funktionelle Einschränkungen", "type": "text", "required": false },
+          { "key": "contraindications", "label": "Ausschlusskriterien/medizinische Risiken vorhanden?", "type": "boolean", "required": true },
+          { "key": "notes", "label": "Klinische Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    { "id": "x_safety", "type": "XOR", "name": "Klinische Sicherheitsprüfung", "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_refer_doctor_safety",
+      "type": "TASK",
+      "name": "Arztkontakt / Abklärung (Sicherheitsprüfung)",
+      "actorRole": "PHYSIO",
+      "contextKey": "referralSafety",
+      "form": {
+        "title": "Arztkontakt / Abklärung",
+        "fields": [
+          { "key": "reason", "label": "Begründung", "type": "text", "required": true },
+          { "key": "urgency", "label": "Dringlichkeit", "type": "select", "options": ["normal", "urgent"], "required": true },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    {
+      "id": "t_plan",
+      "type": "TASK",
+      "name": "Therapieplanung (Verordnung & Befund)",
+      "actorRole": "PHYSIO",
+      "contextKey": "plan",
+      "form": {
+        "title": "Therapieplanung",
+        "fields": [
+          { "key": "therapyType", "label": "Therapieart", "type": "select", "options": ["KG", "MT", "MLD", "KGG", "Other"], "required": true },
+          { "key": "plannedSessions", "label": "Geplante Einheiten", "type": "number", "min": 0, "max": 60, "required": true },
+          { "key": "frequencyPerWeek", "label": "Frequenz/Woche", "type": "number", "min": 0, "max": 7, "required": false },
+          { "key": "homeProgramPlanned", "label": "Heimübungen vorgesehen?", "type": "boolean", "required": false },
+          { "key": "planNotes", "label": "Plan-Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    { "id": "x_sessions_positive", "type": "XOR", "name": "Einheiten > 0?", "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_schedule",
+      "type": "TASK",
+      "name": "Terminplanung (Serie)",
+      "actorRole": "ADMIN",
+      "contextKey": "schedule",
+      "form": {
+        "title": "Terminplanung",
+        "fields": [
+          { "key": "firstAppointment", "label": "Erster Termin (Text)", "type": "text", "required": false },
+          { "key": "seriesPlanned", "label": "Terminserie geplant?", "type": "boolean", "required": true },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    {
+      "id": "t_close_no_sessions",
+      "type": "TASK",
+      "name": "Fall schließen (keine Einheiten)",
+      "actorRole": "ADMIN",
+      "contextKey": "closeNoSessions",
+      "form": {
+        "title": "Fall schließen",
+        "fields": [
+          { "key": "reason", "label": "Grund", "type": "text", "required": true }
+        ]
+      }
+    },
+
+    {
+      "id": "t_session",
+      "type": "TASK",
+      "name": "Behandlungseinheit (Dokumentation)",
+      "actorRole": "PHYSIO",
+      "contextKey": "lastSession",
+      "form": {
+        "title": "Behandlungseinheit",
+        "fields": [
+          { "key": "sessionNumber", "label": "Einheit Nr.", "type": "number", "min": 1, "max": 60, "required": true },
+          { "key": "painBefore", "label": "Schmerz vorher (0–10)", "type": "number", "min": 0, "max": 10, "required": true },
+          { "key": "painAfter", "label": "Schmerz nachher (0–10)", "type": "number", "min": 0, "max": 10, "required": true },
+          { "key": "noShow", "label": "No-show / abgesagt", "type": "boolean", "required": true },
+          { "key": "stopRequested", "label": "Patient möchte abbrechen", "type": "boolean", "required": true },
+          { "key": "adverseEvent", "label": "Nebenwirkung / Verschlechterung", "type": "boolean", "required": true },
+          { "key": "interventions", "label": "Maßnahmen / Inhalte", "type": "text", "required": false },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    { "id": "x_noshow", "type": "XOR", "name": "No-show?", "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_reschedule",
+      "type": "TASK",
+      "name": "Terminmanagement / Patient kontaktieren",
+      "actorRole": "ADMIN",
+      "contextKey": "reschedule",
+      "form": {
+        "title": "Terminmanagement",
+        "fields": [
+          { "key": "contacted", "label": "Patient kontaktiert", "type": "boolean", "required": true },
+          { "key": "newDate", "label": "Neuer Termin (Text)", "type": "text", "required": false },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    { "id": "x_stop", "type": "XOR", "name": "Therapieabbruch?", "actorRole": null, "contextKey": null, "form": null },
+    { "id": "x_adverse", "type": "XOR", "name": "Verschlechterung/Nebenwirkung?", "actorRole": null, "contextKey": null, "form": null },
+    { "id": "x_home_program", "type": "XOR", "name": "Heimübungen einplanen?", "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_home_program",
+      "type": "TASK",
+      "name": "Heimübungen & Patientenschulung",
+      "actorRole": "PHYSIO",
+      "contextKey": "homeProgram",
+      "form": {
+        "title": "Heimübungen / Schulung",
+        "fields": [
+          { "key": "programGiven", "label": "Heimübungen vermittelt?", "type": "boolean", "required": true },
+          { "key": "programNotes", "label": "Übungen / Hinweise", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    { "id": "x_more_sessions", "type": "XOR", "name": "Weitere Einheiten?", "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_outcome",
+      "type": "TASK",
+      "name": "Abschluss / Outcome",
+      "actorRole": "PHYSIO",
+      "contextKey": "outcome",
+      "form": {
+        "title": "Outcome / Abschluss",
+        "fields": [
+          { "key": "result", "label": "Ergebnis", "type": "select", "options": ["better", "same", "worse"], "required": true },
+          { "key": "currentPain", "label": "Aktueller Schmerz (0–10)", "type": "number", "min": 0, "max": 10, "required": true },
+          { "key": "summary", "label": "Zusammenfassung", "type": "text", "required": true },
+          { "key": "recommendation", "label": "Empfehlung", "type": "select", "options": ["discharge", "extend", "refer_doctor"], "required": true }
+        ]
+      }
+    },
+
+    { "id": "x_followup", "type": "XOR", "name": "Weiteres Vorgehen?", "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_report",
+      "type": "TASK",
+      "name": "Therapiebericht / Arztbericht erstellen",
+      "actorRole": "PHYSIO",
+      "contextKey": "report",
+      "form": {
+        "title": "Bericht",
+        "fields": [
+          { "key": "reportNeeded", "label": "Bericht notwendig?", "type": "boolean", "required": true },
+          { "key": "reportText", "label": "Bericht (Text)", "type": "text", "required": false },
+          { "key": "sentToDoctor", "label": "An Arzt gesendet?", "type": "boolean", "required": false }
+        ]
+      }
+    },
+
+    { "id": "x_extend", "type": "XOR", "name": "Folgeverordnung anfragen?", "actorRole": null, "contextKey": null, "form": null },
+
+    {
+      "id": "t_followup_prescription",
+      "type": "TASK",
+      "name": "Folgeverordnung anfragen / Weiterbehandlung",
+      "actorRole": "ADMIN",
+      "contextKey": "followupPrescription",
+      "form": {
+        "title": "Folgeverordnung",
+        "fields": [
+          { "key": "requested", "label": "Folgeverordnung angefragt?", "type": "boolean", "required": true },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    {
+      "id": "t_billing",
+      "type": "TASK",
+      "name": "Abrechnung (Heilmittel)",
+      "actorRole": "ADMIN",
+      "contextKey": "billing",
+      "form": {
+        "title": "Abrechnung",
+        "fields": [
+          { "key": "billed", "label": "Abgerechnet?", "type": "boolean", "required": true },
+          { "key": "copaySettled", "label": "Zuzahlung abgeschlossen?", "type": "boolean", "required": false },
+          { "key": "notes", "label": "Notizen", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    {
+      "id": "t_close_case",
+      "type": "TASK",
+      "name": "Fallabschluss",
+      "actorRole": "ADMIN",
+      "contextKey": "closeCase",
+      "form": {
+        "title": "Fallabschluss",
+        "fields": [
+          { "key": "closed", "label": "Fall geschlossen?", "type": "boolean", "required": true },
+          { "key": "archiveNotes", "label": "Archivnotiz", "type": "text", "required": false }
+        ]
+      }
+    },
+
+    { "id": "end", "type": "END", "name": null, "actorRole": null, "contextKey": null, "form": null }
+  ],
+  "edges": [
+    { "from": "start", "to": "t_prescription_check", "condition": null },
+    { "from": "t_prescription_check", "to": "t_deadline_check", "condition": null },
+    { "from": "t_deadline_check", "to": "t_copay_check", "condition": null },
+
+    { "from": "t_copay_check", "to": "x_prescription_ok", "condition": null },
+    { "from": "x_prescription_ok", "to": "t_intake", "condition": "ctx.prescription.valid == true && ctx.deadlines.startWithinDeadline == true && ctx.deadlines.breakWithinRules == true" },
+    { "from": "x_prescription_ok", "to": "t_close_invalid", "condition": "ctx.prescription.valid == false || ctx.deadlines.startWithinDeadline == false || ctx.deadlines.breakWithinRules == false" },
+    { "from": "t_close_invalid", "to": "end", "condition": null },
+
+    { "from": "t_intake", "to": "t_consent", "condition": null },
+    { "from": "t_consent", "to": "t_assessment", "condition": null },
+
+    { "from": "t_assessment", "to": "x_safety", "condition": null },
+    { "from": "x_safety", "to": "t_refer_doctor_safety", "condition": "ctx.assessment.contraindications == true" },
+    { "from": "x_safety", "to": "t_plan", "condition": "ctx.assessment.contraindications == false" },
+
+    { "from": "t_refer_doctor_safety", "to": "t_report", "condition": null },
+    { "from": "t_report", "to": "t_billing", "condition": null },
+    { "from": "t_billing", "to": "t_close_case", "condition": null },
+    { "from": "t_close_case", "to": "end", "condition": null },
+
+    { "from": "t_plan", "to": "x_sessions_positive", "condition": null },
+    { "from": "x_sessions_positive", "to": "t_schedule", "condition": "ctx.plan.plannedSessions > 0" },
+    { "from": "x_sessions_positive", "to": "t_close_no_sessions", "condition": "ctx.plan.plannedSessions <= 0" },
+    { "from": "t_close_no_sessions", "to": "t_billing", "condition": null },
+
+    { "from": "t_schedule", "to": "t_session", "condition": null },
+
+    { "from": "t_session", "to": "x_noshow", "condition": null },
+    { "from": "x_noshow", "to": "t_reschedule", "condition": "ctx.lastSession.noShow == true" },
+    { "from": "x_noshow", "to": "x_stop", "condition": "ctx.lastSession.noShow == false" },
+    { "from": "t_reschedule", "to": "t_session", "condition": null },
+
+    { "from": "x_stop", "to": "t_outcome", "condition": "ctx.lastSession.stopRequested == true" },
+    { "from": "x_stop", "to": "x_adverse", "condition": "ctx.lastSession.stopRequested == false" },
+
+    { "from": "x_adverse", "to": "t_outcome", "condition": "ctx.lastSession.adverseEvent == true" },
+    { "from": "x_adverse", "to": "x_home_program", "condition": "ctx.lastSession.adverseEvent == false" },
+
+    { "from": "x_home_program", "to": "t_home_program", "condition": "ctx.plan.homeProgramPlanned == true" },
+    { "from": "x_home_program", "to": "x_more_sessions", "condition": "ctx.plan.homeProgramPlanned == false" },
+
+    { "from": "t_home_program", "to": "x_more_sessions", "condition": null },
+
+    { "from": "x_more_sessions", "to": "t_session", "condition": "ctx.lastSession.sessionNumber < ctx.plan.plannedSessions" },
+    { "from": "x_more_sessions", "to": "t_outcome", "condition": "ctx.lastSession.sessionNumber >= ctx.plan.plannedSessions" },
+
+    { "from": "t_outcome", "to": "x_followup", "condition": null },
+
+    { "from": "x_followup", "to": "t_report", "condition": "ctx.outcome.result == \"worse\" || ctx.outcome.currentPain >= 7 || ctx.outcome.recommendation == \"refer_doctor\"" },
+
+    { "from": "x_followup", "to": "x_extend", "condition": "ctx.outcome.recommendation == \"extend\"" },
+    { "from": "x_followup", "to": "t_billing", "condition": "ctx.outcome.recommendation == \"discharge\" && ctx.outcome.result != \"worse\" && ctx.outcome.currentPain < 7" },
+
+    { "from": "x_extend", "to": "t_followup_prescription", "condition": "ctx.outcome.recommendation == \"extend\"" },
+    { "from": "t_followup_prescription", "to": "t_billing", "condition": null },
+
+    { "from": "t_report", "to": "t_billing", "condition": null },
+    { "from": "t_billing", "to": "t_close_case", "condition": null },
+    { "from": "t_close_case", "to": "end", "condition": null }
+  ]
+}

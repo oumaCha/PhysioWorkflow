@@ -1,31 +1,22 @@
 export default function Footer() {
   return (
-    <footer style={styles.footer}>
-      <div>
-        <strong>PhysioFlow</strong> — Master Thesis Prototype
-      </div>
-      <div style={styles.meta}>
-        © {new Date().getFullYear()} • Workflow Modeling & Execution Systems
-      </div>
-    </footer>
+      <footer
+          style={{
+            marginTop: 12,
+            padding: "10px 14px",
+            borderRadius: 16,
+            border: "1px solid rgba(15,23,42,0.10)",
+            background: "rgba(255,255,255,0.85)",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: 12,
+            opacity: 0.75,
+          }}
+      >
+        <div>PhysioFlow — Master Thesis Prototype</div>
+        <div>© 2026 • Workflow Modeling & Execution Systems</div>
+      </footer>
   );
 }
 
-const styles = {
-  footer: {
-    marginTop: 18,
-    padding: "12px 16px",
-    borderRadius: 16,
-    background: "white",
-    border: "1px solid #e5e7eb",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 12,
-    flexWrap: "wrap",
-    fontSize: 14,
-  },
-  meta: {
-    opacity: 0.7,
-  },
-};

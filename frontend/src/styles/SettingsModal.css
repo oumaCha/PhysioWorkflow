@@ -1,0 +1,208 @@
+.smBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: grid;
+    place-items: center;
+    padding: 16px;
+    z-index: 2000;
+}
+
+/* Optional: slightly darker overlay in dark mode */
+body.dark .smBackdrop,
+html.dark .smBackdrop,
+:root.dark .smBackdrop,
+html[data-theme="dark"] .smBackdrop,
+:root[data-theme="dark"] .smBackdrop {
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.smDialog {
+    width: min(720px, 100%);
+    max-height: min(78vh, 720px);
+
+    /* ✅ Theme-driven */
+    background: var(--surface);
+    color: var(--text-main);
+    border: 1px solid var(--border-soft);
+
+    border-radius: 18px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+
+    animation: smPop 140ms ease-out;
+}
+
+@keyframes smPop {
+    from { transform: translateY(6px) scale(0.99); opacity: 0.0; }
+    to   { transform: translateY(0) scale(1); opacity: 1.0; }
+}
+
+.smHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px 16px 10px;
+
+    /* ✅ Theme-driven */
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.smTitle {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.smSubtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.smCloseBtn {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+
+    border: 1px solid var(--border-soft);
+    background: var(--menu-hover);
+    color: var(--text-main);
+
+    cursor: pointer;
+}
+
+.smBody {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: 0;
+}
+
+.smTabs {
+    padding: 12px;
+    border-right: 1px solid var(--border-soft);
+    display: grid;
+    gap: 8px;
+}
+
+.smTab {
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 14px;
+
+    border: 1px solid var(--border-soft);
+    background: var(--menu-hover);
+    color: var(--text-main);
+
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.smTab.isActive {
+    background: var(--selected-soft);
+    border-color: rgba(59, 130, 246, 0.35);
+}
+
+.smPanel {
+    padding: 16px;
+    overflow: auto;
+}
+
+.smSection {
+    display: grid;
+    gap: 12px;
+}
+
+.smRow {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+
+    border: 1px solid var(--border-soft);
+    border-radius: 14px;
+    background: var(--card-bg-2, var(--surface));
+}
+
+.smLabel {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 700;
+}
+
+.smValue {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.smPill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+
+    border: 1px solid var(--border-soft);
+    background: var(--menu-hover);
+    color: var(--text-main);
+
+    font-size: 12px;
+}
+
+.smSelect {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+
+    border: 1px solid var(--border-soft);
+    background: var(--input-bg);
+    color: var(--text-main);
+}
+
+.smHint {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding: 10px 12px;
+}
+
+.smFooter {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border-soft);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.smSecondaryBtn {
+    padding: 10px 14px;
+    border-radius: 14px;
+
+    border: 1px solid var(--btn-secondary-border);
+    background: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+
+    cursor: pointer;
+    font-weight: 800;
+}
+
+/* ✅ Responsive: mobile stacks tabs on top */
+@media (max-width: 680px) {
+    .smBody {
+        grid-template-columns: 1fr;
+    }
+    .smTabs {
+        grid-template-columns: 1fr 1fr 1fr;
+        border-right: none;
+        border-bottom: 1px solid var(--border-soft);
+    }
+    .smRow {
+        grid-template-columns: 1fr;
+    }
+}

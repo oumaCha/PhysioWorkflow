@@ -1,0 +1,125 @@
+.task-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.55);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+    padding: 16px;
+}
+
+.task-modal {
+    width: min(720px, 96vw);
+    max-height: 88vh;
+    overflow: hidden;
+    border-radius: 20px;
+    background: white;
+    border: 1px solid rgba(15, 23, 42, 0.1);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+.task-modal-header {
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+    background: linear-gradient(90deg, rgba(15, 118, 110, 0.1), rgba(2, 132, 199, 0.1));
+}
+
+.task-modal-title {
+    font-weight: 950;
+    font-size: 16px;
+}
+
+.task-modal-subtitle {
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+.task-modal-close {
+    border: none;
+    background: rgba(15, 23, 42, 0.06);
+    border-radius: 12px;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    font-weight: 900;
+}
+
+.task-modal-body {
+    padding: 14px;
+    overflow: auto;
+}
+
+.task-modal-footer {
+    padding-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid rgba(15, 23, 42, 0.08);
+    background: rgba(248, 250, 252, 0.9);
+    margin-top: 14px;
+}
+
+.task-field-row {
+    display: grid;
+    gap: 6px;
+}
+
+.task-field-label {
+    font-weight: 900;
+    font-size: 13px;
+}
+
+.task-input {
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    outline: none;
+}
+
+.task-switch-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    width: fit-content;
+    background: white;
+}
+
+.task-btn-primary {
+    border: none;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 950;
+    background: #0f172a;
+    color: white;
+    height: 42px;
+}
+
+.task-btn-secondary {
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-weight: 950;
+    background: white;
+    color: #0f172a;
+    height: 42px;
+    cursor: pointer;
+}
+
+.task-error {
+    padding: 12px;
+    border-radius: 16px;
+    background: rgba(254, 226, 226, 0.9);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+    color: #7f1d1d;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
