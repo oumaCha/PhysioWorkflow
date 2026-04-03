@@ -1,6 +1,6 @@
-# PhysioFlow – Workflow Modeling and Execution System for Physiotherapy
+# PhysioWorkflow – Workflow Modeling and Execution System for Physiotherapy
 
-PhysioFlow is a web-based workflow modeling and execution system designed for physiotherapy treatment processes.  
+PhysioWorkflow is a web-based workflow modeling and execution system designed for physiotherapy treatment processes.  
 The system was developed as part of a Master’s thesis titled:
 
 > **Design and Implementation of a Workflow Modeling and Execution System for Physiotherapy Treatment Processes**
@@ -9,7 +9,7 @@ The system was developed as part of a Master’s thesis titled:
 
 ## 🎯 Purpose
 
-PhysioFlow aims to support structured documentation, execution, and traceability of physiotherapy treatment workflows while respecting:
+PhysioWorkflow aims to support structured documentation, execution, and traceability of physiotherapy treatment workflows while respecting:
 
 - Role-based access control (RBAC)
 - Deterministic workflow execution semantics
@@ -30,7 +30,7 @@ Workflow execution logic is encapsulated in a lightweight domain-specific workfl
 ---
 ## 🖥 System Requirements
 
-Before installing PhysioFlow, ensure the following software is installed:
+Before installing PhysioWorkflow, ensure the following software is installed:
 
 - Java 17+
 
