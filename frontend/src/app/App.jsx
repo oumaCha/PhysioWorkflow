@@ -1,42 +1,60 @@
 import { useMemo, useState, useEffect } from "react";
+import { Routes, Route, Navigate, useNavigate, useParams, useLocation } from "react-router-dom";
+
 import AppLayout from "../layout/AppLayout";
 import WorkflowCanvasPage from "../pages/WorkflowCanvasPage";
 import DashboardPage from "../pages/DashboardPage";
 import LoginPage from "../pages/LoginPage";
+import { apiFetch } from "../workflow/api/http";
+import WorkflowDesignerPage from "../pages/WorkflowDesignerPage";
 
 function roleFromMe(me) {
-    const roles = me?.roles || [];
+    const roles = Array.isArray(me?.roles) ? me.roles : [];
     if (roles.includes("ROLE_ADMIN")) return "ADMIN";
     if (roles.includes("ROLE_PHYSIOTHERAPIST")) return "PHYSIO";
     if (roles.includes("ROLE_RECEPTIONIST")) return "RECEPTION";
     return null;
 }
 
+function CanvasRouteWrapper({ isPhysio, session }) {
+    const { instanceId, taskId } = useParams();
+
+    // if user is not physio, block canvas route
+    if (!isPhysio) {
+        return <Navigate to="/dashboard" replace />;
+    }
+
+    return (
+        <WorkflowCanvasPage
+            auth={session}
+            instanceId={instanceId || null}
+            taskId={taskId || null}
+            onBackToDashboard={() => (window.location.href = "/dashboard")}
+        />
+    );
+}
+
 export default function App() {
-    const [tab, setTab] = useState("dashboard"); // dashboard | canvas
-    const [session, setSession] = useState(null); // { username, role, me }
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const [session, setSession] = useState(null);
+    const [restoring, setRestoring] = useState(true);
 
     const role = session?.role ?? null;
     const isPhysio = role === "PHYSIO";
     const isAdmin = role === "ADMIN";
     const isReception = role === "RECEPTION";
 
-    const [selectedInstanceId, setSelectedInstanceId] = useState(null);
-    const [selectedTaskId, setSelectedTaskId] = useState(null);
-
-    // ✅ Restore login after refresh (cookie session)
+    // restore session from cookie
     useEffect(() => {
         let cancelled = false;
 
         async function restore() {
             try {
-                const res = await fetch("/api/auth/me", { credentials: "include" });
-                if (!res.ok) {
-                    if (!cancelled) setSession(null);
-                    return;
-                }
+                await apiFetch("/api/auth/csrf").catch(() => {});
+                const me = await apiFetch("/api/auth/me");
 
-                const me = await res.json();
                 const resolvedRole = roleFromMe(me);
                 if (!resolvedRole) {
                     if (!cancelled) setSession(null);
@@ -52,50 +70,28 @@ export default function App() {
                 }
             } catch {
                 if (!cancelled) setSession(null);
+            } finally {
+                if (!cancelled) setRestoring(false);
             }
         }
 
-        restore();
+        void restore();
         return () => {
             cancelled = true;
         };
     }, []);
 
-    // Cleanup when role changes
-    useEffect(() => {
-        setTab("dashboard");
-        setSelectedInstanceId(null);
-        setSelectedTaskId(null);
-    }, [role]);
-
     const headerTitle = useMemo(() => {
-        if (tab === "dashboard") return "PhysioFlow";
-        if (tab === "canvas") return "Workflow Canvas";
+        if (location.pathname.startsWith("/canvas")) return "Workflow Canvas";
         return "PhysioFlow";
-    }, [tab]);
+    }, [location.pathname]);
 
     const headerSubtitle = useMemo(() => {
-        if (tab === "dashboard") return isAdmin ? "Administration" : "Patients, tasks & progress";
-        if (tab === "canvas") return "Plan & document the treatment path";
-        return "";
-    }, [tab, isAdmin]);
+        if (location.pathname.startsWith("/canvas")) return "Plan & document the treatment path";
+        return isAdmin ? "Administration" : "Patients, tasks & progress";
+    }, [location.pathname, isAdmin]);
 
-    const handleOpenTask = (task) => {
-        if (!isPhysio) return;
-        setSelectedInstanceId(task.instanceId);
-        setSelectedTaskId(task.id);
-        setTab("canvas");
-    };
-
-    const handleOpenInstance = (instanceId) => {
-        if (!isPhysio) return;
-        setSelectedInstanceId(instanceId);
-        setSelectedTaskId(null);
-        setTab("canvas");
-    };
-
-    // LoginPage calls /api/auth/login then /api/auth/me and passes {username, me}
-    const handleLogin = ({ username, me }) => {
+    function handleLogin({ username, me }) {
         const resolvedRole = roleFromMe(me);
         if (!resolvedRole) return;
 
@@ -104,64 +100,86 @@ export default function App() {
             role: resolvedRole,
             me,
         });
-    };
 
-    // ✅ Correct logout for Spring Security: POST /logout
-    const handleLogout = async () => {
-        try {
-            await fetch("/logout", {
-                method: "POST",
-                credentials: "include",
-            });
-        } finally {
-            setSession(null);
-            setTab("dashboard");
-            setSelectedInstanceId(null);
-            setSelectedTaskId(null);
-        }
-    };
-
-    if (!session) {
-        return <LoginPage onLogin={handleLogin} />;
+        // go back where user wanted to go, or dashboard
+        navigate("/dashboard", { replace: true });
     }
 
+    async function handleLogout() {
+        try {
+            await apiFetch("/api/auth/csrf");
+            await apiFetch("/api/auth/logout", { method: "POST" });
+        } catch (e) {
+            console.error("Logout failed:", e);
+        } finally {
+            setSession(null);
+            navigate("/login", { replace: true });
+        }
+    }
+
+    // If not logged in: show login route, but keep SPA pathing clean
+    if (!session && !restoring) {
+        return (
+            <Routes>
+                <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+                <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+        );
+    }
+
+    // Logged in OR restoring: render layout, with mainLoading overlay
     return (
         <AppLayout
             title={headerTitle}
             subtitle={headerSubtitle}
             role={role}
             setRole={() => {}}
-            tab={tab}
-            setTab={setTab}
+            tab={location.pathname.startsWith("/canvas") ? "canvas" : "dashboard"}
+            setTab={(t) => navigate(t === "canvas" ? "/dashboard" : "/dashboard")}
             isPhysio={isPhysio}
             onLogout={handleLogout}
-            username={session.username}
+            username={session?.username ?? ""}
+            mainLoading={restoring}
         >
-            {tab === "dashboard" && (
-                <DashboardPage
-                    role={role}
-                    onOpenTask={isPhysio ? handleOpenTask : undefined}
-                    onOpenInstance={isPhysio ? handleOpenInstance : undefined}
-                />
+            {/* Render routes only after session exists */}
+            {session && (
+                <Routes>
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <DashboardPage
+                                role={role}
+                                onOpenTask={
+                                    isPhysio
+                                        ? (task) => navigate(`/canvas/${task.instanceId}/task/${task.id}`)
+                                        : undefined
+                                }
+                                onOpenInstance={isPhysio ? (id) => navigate(`/canvas/${id}`) : undefined}
+                            />
+                        }
+                    />
+
+                    <Route
+                        path="/canvas/:instanceId"
+                        element={<CanvasRouteWrapper isPhysio={isPhysio} session={session} />}
+                    />
+
+                    <Route
+                        path="/canvas/:instanceId/task/:taskId"
+                        element={<CanvasRouteWrapper isPhysio={isPhysio} session={session} />}
+                    />
+
+                    <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+                    <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    <Route
+                        path="/designer/:definitionId"
+                        element={<WorkflowDesignerPage isPhysio={isPhysio} />}
+                    />
+                </Routes>
             )}
 
-            {tab === "canvas" && isPhysio && (
-                <WorkflowCanvasPage
-                    instanceId={selectedInstanceId}
-                    taskId={selectedTaskId}
-                    onBackToDashboard={() => setTab("dashboard")}
-                />
-            )}
-
-            {isAdmin && tab === "canvas" && (
-                <div style={{ padding: 24 }}>Admin currently has no canvas view. Go to Dashboard.</div>
-            )}
-
-            {isReception && tab === "canvas" && (
-                <div style={{ padding: 24 }}>Reception role has no access to canvas.</div>
-            )}
+            {/* While restoring and no session yet, keep main area stable */}
+            {!session && restoring && <div style={{ minHeight: 300 }} />}
         </AppLayout>
     );
 }
-
-

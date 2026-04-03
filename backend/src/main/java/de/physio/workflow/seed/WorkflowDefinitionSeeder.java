@@ -2,8 +2,8 @@ package de.physio.workflow;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.physio.workflow.persistence.entity.WorkflowDefinitionEntity;
 import de.physio.workflow.persistence.repository.WorkflowDefinitionRepository;
-import de.physio.workflow.domain.WorkflowDefinitionService;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +16,10 @@ public class WorkflowDefinitionSeeder {
     @Bean
     ApplicationRunner seedWorkflowDefinitions(
             WorkflowDefinitionRepository repo,
-            WorkflowDefinitionService service,
             ObjectMapper objectMapper
     ) {
         return args -> {
+
             var resolver = new PathMatchingResourcePatternResolver();
             Resource[] resources = resolver.getResources("classpath:/workflows/*.json");
 
@@ -31,27 +31,51 @@ public class WorkflowDefinitionSeeder {
 
                     String metaKey = definitionJson.path("meta").path("key").asText(null);
                     String metaName = definitionJson.path("meta").path("name").asText(r.getFilename());
-
-                    System.out.println(">>> Seeder file: " + r.getFilename() + " metaKey=" + metaKey);
+                    int fileVersion = definitionJson.path("meta").path("version").asInt(0);
 
                     if (metaKey == null || metaKey.isBlank()) {
-                        System.out.println("[seed] Skip " + r.getFilename() + " (meta.key missing)");
+                        System.out.println("[seed] Skip " + r.getFilename() + " meta.key missing");
                         continue;
                     }
 
-                    // If your entity does NOT have metaKey column yet, comment this check out and seed once.
-                    // Otherwise, keep it.
-                    if (repo.existsByMetaKey(metaKey)) {
-                        System.out.println("[seed] Exists (skip): " + metaKey);
+                    var existingOpt = repo.findByMetaKey(metaKey);
+
+                    if (existingOpt.isEmpty()) {
+
+                        WorkflowDefinitionEntity e = new WorkflowDefinitionEntity();
+                        e.setName(metaName);
+                        e.setMetaKey(metaKey);
+                        e.setDefinitionJson(definitionJson);
+
+                        repo.save(e);
+
+                        System.out.println("[seed] Inserted new template: " + metaKey + " v" + fileVersion);
                         continue;
                     }
 
+                    WorkflowDefinitionEntity existing = existingOpt.get();
 
-                    // IMPORTANT: your current service expects (name, definitionJson) OR (request)
-                    // Adjust to your service signature:
-                    service.create(metaName, definitionJson);
+                    int dbVersion = existing.getDefinitionJson()
+                            .path("meta")
+                            .path("version")
+                            .asInt(0);
 
-                    System.out.println("[seed] Inserted: " + metaKey + " (" + metaName + ")");
+                    if (fileVersion > dbVersion) {
+
+                        existing.setName(metaName);
+                        existing.setDefinitionJson(definitionJson);
+                        repo.save(existing);
+
+                        System.out.println("[seed] Created new version: "
+                                + metaKey + " v" + dbVersion + " -> v" + fileVersion);
+
+                    } else {
+
+                        System.out.println("[seed] Exists (no new version): "
+                                + metaKey + " dbVersion=" + dbVersion
+                                + " fileVersion=" + fileVersion);
+                    }
+
                 } catch (Exception e) {
                     System.out.println("[seed] FAILED for file: " + r.getFilename());
                     e.printStackTrace();

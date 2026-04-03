@@ -15,7 +15,7 @@ function defaultValueForField(f) {
     return "";
 }
 
-export default function TaskFormModal({ open, task, loading, error, onClose, onSubmit }) {
+export default function TaskFormModal({ open, task, loading, error, onClose, onSubmit, prefillValues }) {
     const fields = useMemo(() => normalizeFields(task), [task]);
 
     const title = task?.name || task?.title || "Task";
@@ -26,8 +26,15 @@ export default function TaskFormModal({ open, task, loading, error, onClose, onS
     const initialValues = useMemo(() => {
         const init = {};
         for (const f of fields) init[f.key] = defaultValueForField(f);
+
+        // Prefill values from parent (e.g. sessionNumber)
+        if (prefillValues && typeof prefillValues === "object") {
+            for (const [k, v] of Object.entries(prefillValues)) {
+                if (v !== undefined && v !== null) init[k] = v;
+            }
+        }
         return init;
-    }, [fields]);
+    }, [fields, prefillValues]);
 
     if (!open) return null;
 
@@ -109,6 +116,7 @@ function FieldRow({ field, value, onChange }) {
     const type = String(field?.type || "text").toLowerCase();
     const label = field?.label || field?.key;
     const required = field?.required === true;
+    const readOnly = field?.readOnly === true || field?.key === "sessionNumber";
 
     return (
         <div className="task-field-row">
@@ -117,13 +125,14 @@ function FieldRow({ field, value, onChange }) {
             </div>
 
             {type === "text" && (
-                <input className="task-input" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
+                <input className="task-input" disabled={readOnly} value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
             )}
 
             {type === "number" && (
                 <input
                     className="task-input"
                     type="number"
+                    disabled={readOnly}
                     value={value ?? ""}
                     onChange={(e) => onChange(e.target.value === "" ? "" : Number(e.target.value))}
                 />
@@ -131,13 +140,13 @@ function FieldRow({ field, value, onChange }) {
 
             {type === "boolean" && (
                 <label className="task-switch-row">
-                    <input type="checkbox" checked={value === true} onChange={(e) => onChange(e.target.checked)} />
+                    <input type="checkbox" disabled={readOnly} checked={value === true} onChange={(e) => onChange(e.target.checked)} />
                     <span>{value === true ? "Yes" : "No"}</span>
                 </label>
             )}
 
             {type === "select" && (
-                <select className="task-input" value={value ?? ""} onChange={(e) => onChange(e.target.value)}>
+                <select className="task-input" disabled={readOnly} value={value ?? ""} onChange={(e) => onChange(e.target.value)}>
                     {(field?.options || []).map((opt) => (
                         <option key={String(opt)} value={String(opt)}>
                             {String(opt)}
@@ -147,7 +156,7 @@ function FieldRow({ field, value, onChange }) {
             )}
 
             {!["text", "number", "boolean", "select"].includes(type) && (
-                <input className="task-input" value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
+                <input className="task-input" disabled={readOnly} value={value ?? ""} onChange={(e) => onChange(e.target.value)} />
             )}
         </div>
     );

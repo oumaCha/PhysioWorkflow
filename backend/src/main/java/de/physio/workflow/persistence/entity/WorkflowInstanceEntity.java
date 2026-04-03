@@ -32,6 +32,17 @@ public class WorkflowInstanceEntity {
     @Column(name="current_node_id")
     private String currentNodeId;
 
+    @Column(name = "phase")
+    private String phase;
+
+    public String getPhase() {
+        return phase;
+    }
+
+    public void setPhase(String phase) {
+        this.phase = phase;
+    }
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name="context_json", nullable=false, columnDefinition="jsonb")
     private JsonNode contextJson;

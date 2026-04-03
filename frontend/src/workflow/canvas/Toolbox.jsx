@@ -8,7 +8,7 @@ const TOOL_GROUPS = [
         items: [
             { key: "start", label: "Start", kind: "START", role: "SYSTEM", icon: "▶️", subtitle: "Entry point" },
             { key: "task", label: "Task", kind: "TASK", role: "SYSTEM", icon: "🧩", subtitle: "Single activity" },
-            { key: "xor", label: "Decision (XOR)", kind: "DECISION", role: "SYSTEM", icon: "🔀", subtitle: "Branch by condition" },
+            { key: "xor", label: "Decision (XOR)", kind: "DECISION", role: "SYSTEM", icon: "🔀", subtitle: "Branch by condition",backendNodeId:"x_more_sessions" },
             { key: "end", label: "End", kind: "END", role: "SYSTEM", icon: "⏹️", subtitle: "Exit point" },
             { key: "timer", label: "Timer / Wait", kind: "TIMER", role: "SYSTEM", icon: "⏱️", subtitle: "Delay / reminder" },
         ],
@@ -17,18 +17,18 @@ const TOOL_GROUPS = [
         title: "Patient & intake",
         description: "Erstkontakt, Anamnese, Consent",
         items: [
-            { key: "patient", label: "Patient", kind: "ACTOR", role: "PATIENT", icon: "🧑‍🦽", subtitle: "Actor / participant" },
-            { key: "intake", label: "First consultation (Erstaufnahme)", kind: "TASK", role: "PHYSIO", icon: "📝", subtitle: "Anamnese + baseline" },
-            { key: "consent", label: "Consent / Datenschutz (DSGVO)", kind: "TASK", role: "PATIENT", icon: "🛡️", subtitle: "Consent & signature" },
-            { key: "insurance", label: "Insurance check", kind: "TASK", role: "ADMIN", icon: "🏥", subtitle: "Kasse / status" },
+            { key: "intake", label: "First consultation (Erstaufnahme)", kind: "TASK", role: "PHYSIO", icon: "📝", subtitle: "Anamnese + baseline", backendNodeId: "t_intake" },
+            { key: "consent", label: "Consent / Datenschutz (DSGVO)", kind: "TASK", role: "PHYSIO", icon: "🛡️", subtitle: "Consent & signature", backendNodeId: "t_consent" },
+            { key: "insurance", label: "Insurance check", kind: "TASK", role: "RECEPTION", icon: "🏥", subtitle: "Kasse / status" },
         ],
     },
     {
         title: "Clinical assessment",
         description: "Befund, Tests, Red Flags",
         items: [
-            { key: "assessment", label: "Assessment (Befund)", kind: "TASK", role: "PHYSIO", icon: "🩺", subtitle: "Clinical findings" },
-            { key: "pain", label: "Pain score (0–10)", kind: "TASK", role: "PHYSIO", icon: "📈", subtitle: "NRS/VAS" },
+            { key: "assessment", label: "Assessment (Befund)", kind: "TASK", role: "PHYSIO", icon: "🩺", subtitle: "Clinical findings", backendNodeId: "t_assessment" },
+            { key: "xorPainFirst", label: "Decision: Pain high? (Assessment)", kind: "DECISION", role: "SYSTEM", icon: "🔀", subtitle: "After assessment", backendNodeId: "t_pain_first_consult" },
+            { key: "referEarly", label: "Refer to doctor (early stop)", kind: "TASK", role: "PHYSIO", icon: "🧑‍⚕️", subtitle: "End case early", backendNodeId: "t_refer_doctor_early" },
             { key: "rom", label: "ROM / Mobility", kind: "TASK", role: "PHYSIO", icon: "📐", subtitle: "Range of motion" },
             { key: "redflags", label: "Red flags screening", kind: "TASK", role: "PHYSIO", icon: "⚠️", subtitle: "Safety check" },
             { key: "refer", label: "Refer to doctor", kind: "TASK", role: "PHYSIO", icon: "🧑‍⚕️", subtitle: "Arztkontakt" },
@@ -38,11 +38,10 @@ const TOOL_GROUPS = [
         title: "Treatment plan & sessions",
         description: "Plan, Heilmittel, Termine",
         items: [
-            { key: "plan", label: "Treatment plan", kind: "TASK", role: "PHYSIO", icon: "🗺️", subtitle: "Based on prescription" },
-            { key: "prescription", label: "Prescription check (Heilmittel)", kind: "TASK", role: "ADMIN", icon: "📄", subtitle: "Validity / sessions" },
-            { key: "schedule", label: "Schedule appointment", kind: "TASK", role: "ADMIN", icon: "📅", subtitle: "Terminplanung" },
-            { key: "session", label: "Treatment session", kind: "TASK", role: "PHYSIO", icon: "💪", subtitle: "Documentation + progress" },
-            { key: "noshow", label: "No-show handling", kind: "TASK", role: "ADMIN", icon: "📞", subtitle: "Reschedule / contact" },
+            { key: "plan", label: "Treatment plan", kind: "TASK", role: "PHYSIO", icon: "🗺️", subtitle: "Based on prescription", backendNodeId: "t_plan" },
+            { key: "prescription", label: "Prescription check (Heilmittel)", kind: "TASK", role: "PHYSIO", icon: "📄", subtitle: "Validity / sessions", backendNodeId: "t_prescription_check" },
+            { key: "session", label: "Treatment session", kind: "TASK", role: "PHYSIO", icon: "💪", subtitle: "Documentation + progress", backendNodeId: "t_session" },
+            { key: "noshow", label: "No-show handling", kind: "TASK", role: "RECEPTION", icon: "📞", subtitle: "Reschedule / contact" },
         ],
     },
     {
@@ -60,9 +59,11 @@ const TOOL_GROUPS = [
         title: "Outcome & documentation",
         description: "Abschluss, Bericht, Abrechnung",
         items: [
-            { key: "outcome", label: "Outcome / discharge", kind: "TASK", role: "PHYSIO", icon: "✅", subtitle: "Evaluation & summary" },
-            { key: "report", label: "Generate report", kind: "TASK", role: "PHYSIO", icon: "🧾", subtitle: "Verlaufs-/Befundbericht" },
-            { key: "billing", label: "Billing (Abrechnung)", kind: "TASK", role: "ADMIN", icon: "💳", subtitle: "Heilmittelkatalog" },
+            { key: "outcome", label: "Outcome / discharge", kind: "TASK", role: "PHYSIO", icon: "✅", subtitle: "Evaluation & summary", backendNodeId: "t_outcome" },
+            { key: "xorPainOutcome", label: "Decision: Pain high? (Outcome)", kind: "DECISION", role: "SYSTEM", icon: "🔀", subtitle: "After outcome", backendNodeId: "t_pain_outcome" },
+            { key: "referOutcome", label: "Refer to doctor (end Treatment)", kind: "TASK", role: "PHYSIO", icon: "🧑‍⚕️", subtitle: "Then report/billing/close", backendNodeId: "t_refer_doctor_outcome" },
+            { key: "report", label: "Generate report", kind: "TASK", role: "PHYSIO", icon: "🧾", subtitle: "Verlaufs-/Befundbericht", backendNodeId: "t_report" },
+            { key: "billing", label: "Billing (Abrechnung)", kind: "TASK", role: "RECEPTION", icon: "💳", subtitle: "Heilmittelkatalog" },
         ],
     },
 ];
@@ -117,6 +118,8 @@ function DraggableCard({ tool, onAdd }) {
         </button>
     );
 }
+
+
 
 export default function Toolbox({ onAdd }) {
     const [q, setQ] = useState("");

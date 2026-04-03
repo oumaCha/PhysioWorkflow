@@ -14,7 +14,7 @@ export default function Footer() {
             opacity: 0.75,
           }}
       >
-        <div>PhysioFlow — Master Thesis Prototype</div>
+        <div>Physio Workflow — Master Thesis Prototype</div>
         <div>© 2026 • Workflow Modeling & Execution Systems</div>
       </footer>
   );

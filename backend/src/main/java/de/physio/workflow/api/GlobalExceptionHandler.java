@@ -40,4 +40,14 @@ public class GlobalExceptionHandler {
                 "message", message
         );
     }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, Object> handleAny(Exception ex) {
+        return Map.of(
+                "error", "INTERNAL_ERROR",
+                "message", ex.getClass().getSimpleName() + ": " + ex.getMessage()
+        );
+    }
+
 }

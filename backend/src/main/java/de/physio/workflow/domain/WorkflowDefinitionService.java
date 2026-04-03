@@ -58,4 +58,34 @@ public class WorkflowDefinitionService {
         return repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Definition not found: " + id));
     }
+
+    public WorkflowDefinitionEntity update(Long id, String name, JsonNode definitionJson) {
+        WorkflowDefinitionEntity existing = get(id);
+
+        // validate structure
+        validator.validateOrThrow(definitionJson);
+
+        // meta.key must exist
+        String metaKey = definitionJson.path("meta").path("key").asText(null);
+        if (metaKey == null || metaKey.isBlank()) {
+            throw new IllegalArgumentException("Invalid workflow definition JSON: meta.key must not be empty");
+        }
+
+        // do not allow changing meta.key (keeps definition stable)
+        if (!metaKey.equals(existing.getMetaKey())) {
+            throw new IllegalArgumentException(
+                    "meta.key cannot be changed (existing=" + existing.getMetaKey() + ", new=" + metaKey + ")"
+            );
+        }
+
+        // If name missing, fallback to meta.name
+        if (name == null || name.isBlank()) {
+            String metaName = definitionJson.path("meta").path("name").asText(null);
+            name = (metaName == null || metaName.isBlank()) ? metaKey : metaName;
+        }
+
+        existing.setName(name);
+        existing.setDefinitionJson(definitionJson);
+        return repo.save(existing);
+    }
 }

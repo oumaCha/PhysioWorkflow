@@ -1,6 +1,5 @@
 package de.physio.workflow.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.physio.workflow.persistence.entity.WorkflowLayoutEntity;
 import de.physio.workflow.persistence.repository.WorkflowLayoutRepository;
@@ -19,20 +18,14 @@ public class WorkflowLayoutController {
     }
 
     @GetMapping("/workflow-instances/{id}/layout")
-    public JsonNode getLayout(@PathVariable Long id) throws Exception {
+    public String getLayout(@PathVariable Long id) {
         return repo.findByInstanceId(id)
-                .map(e -> {
-                    try {
-                        return om.readTree(e.getLayoutJson());
-                    } catch (Exception ex) {
-                        return om.createObjectNode();
-                    }
-                })
-                .orElse(om.createObjectNode());
+                .map(WorkflowLayoutEntity::getLayoutJson)
+                .orElse(null);
     }
 
     @PutMapping("/workflow-instances/{id}/layout")
-    public void saveLayout(@PathVariable Long id, @RequestBody JsonNode layout) throws Exception {
+    public void saveLayout(@PathVariable Long id, @RequestBody Object layout) throws Exception {
         WorkflowLayoutEntity entity = repo.findByInstanceId(id)
                 .orElseGet(WorkflowLayoutEntity::new);
 
@@ -42,3 +35,4 @@ public class WorkflowLayoutController {
         repo.save(entity);
     }
 }
+

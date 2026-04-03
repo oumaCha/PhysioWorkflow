@@ -17,3 +17,6 @@ Thumbs.db
 # H2 database helper files
 /backend/data/*.lock.db
 /backend/data/*.trace.db
+
+
+backend/.env

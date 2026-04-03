@@ -21,13 +21,13 @@ public class PatientEntity {
     private String intakeText;
 
 
+
     /**
      * Reception is allowed to store ONLY a high-level area/type like:
      * KNEE, SHOULDER, BACK, HIP, ELBOW, OTHER
      * (no medical details)
      */
-    @Column(name = "treatment_area", nullable=false)
-    private String treatmentArea;
+
 
     /**
      * Potentially sensitive free text.
@@ -42,18 +42,22 @@ public class PatientEntity {
     @Column
     private Long workflowInstanceId;
 
+    @Column(name = "sessions_planned", nullable = false)
+    private int sessionsPlanned = 0;
+
+    @Column(name = "sessions_done", nullable = false)
+    private int sessionsDone = 0;
+
+    @Column(name = "treatment_area", nullable=false)
+    private String treatmentArea;
+
+
     /**
      * Keep internal code, but Reception will see only a mapped label.
      */
     @Column(nullable=false)
     private String status; // e.g. "REFERRAL_RECEIVED"
 
-
-    @Column(name = "sessions_planned", nullable = false)
-    private int sessionsPlanned = 5;
-
-    @Column(name = "sessions_done", nullable = false)
-    private int sessionsDone = 0;
 
     @PrePersist
     public void prePersist() {

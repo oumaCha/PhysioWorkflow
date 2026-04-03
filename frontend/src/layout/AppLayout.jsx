@@ -10,6 +10,7 @@ export default function AppLayout({
                                       isPhysio,
                                       onLogout,
                                       username,
+                                      loading,
                                       children,
                                   }) {
     return (
@@ -32,6 +33,34 @@ export default function AppLayout({
 
                 <Footer />
             </div>
+
+            {loading && (
+                <div
+                    style={{
+                        position: "fixed",
+                        inset: 0,
+                        background: "rgba(255,255,255,0.35)",
+                        backdropFilter: "blur(3px)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        zIndex: 9999,
+                        pointerEvents: "all",
+                    }}
+                >
+                    <div
+                        style={{
+                            padding: 16,
+                            borderRadius: 14,
+                            background: "rgba(255,255,255,0.85)",
+                            boxShadow: "0 8px 24px rgba(0,0,0,0.08)",
+                            fontWeight: 600,
+                        }}
+                    >
+                        Loading…
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

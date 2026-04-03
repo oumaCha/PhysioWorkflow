@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import logo from "../assets/logo1.png";
+import logo from "../assets/logo2.png";
 import "../styles/Header.css";
 import SettingsModal from "../components/SettingsModal";
 
@@ -50,10 +50,8 @@ export default function Header({ role, tab, setTab, isPhysio, username, onLogout
   const topTabs = useMemo(() => {
     return [
       { id: "dashboard", label: "Dashboard" },
-      { id: "patients", label: "Patients" },
       { id: "workflows", label: "Workflows" },
-      { id: "analytics", label: "Analytics" },
-      { id: "library", label: "Library" },
+
     ];
   }, []);
 
@@ -146,14 +144,7 @@ export default function Header({ role, tab, setTab, isPhysio, username, onLogout
           </div>
         </div>
 
-        <div className="pfpToolsRow">
-          <div className="pfpToolsLeft">
-            <button className="pfpToolBtn">🎨 Color Palette</button>
-            <button className="pfpToolBtn pfpToolBtnPrimary">⬛ Shapes</button>
-          </div>
 
-
-        </div>
 
         <SettingsModal
             open={showSettings}

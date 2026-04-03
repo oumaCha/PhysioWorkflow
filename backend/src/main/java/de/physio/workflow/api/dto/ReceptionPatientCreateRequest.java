@@ -3,6 +3,7 @@ package de.physio.workflow.api.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+
 public class ReceptionPatientCreateRequest {
 
     @NotBlank(message = "Please enter the patient's first name")
@@ -11,6 +12,8 @@ public class ReceptionPatientCreateRequest {
     @NotBlank(message = "Please enter the patient's last name")
     private String lastName;
 
+
+    private Integer sessionsPlanned;
     /**
      * High-level intake field only (privacy-safe).
      * Examples: knee injury, shoulder pain, post-op rehab
@@ -39,4 +42,13 @@ public class ReceptionPatientCreateRequest {
 
     public String getIntakeText() { return intakeText; }
     public void setIntakeText(String intakeText) { this.intakeText = intakeText; }
+
+    public Integer getSessionsPlanned() {
+        return sessionsPlanned;
+    }
+
+    public void setSessionsPlanned(Integer sessionsPlanned) {
+        this.sessionsPlanned = sessionsPlanned;
+    }
+
 }

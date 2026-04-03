@@ -8,5 +8,5 @@ public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
     List<TaskEntity> findByStatusOrderByCreatedAtAsc(String status);
     List<TaskEntity> findByInstanceIdOrderByCreatedAtAsc(Long instanceId);
     List<TaskEntity> findByStatus(String status);
-
+    List<TaskEntity> findByInstanceIdAndStatusOrderByCreatedAtAsc(Long instanceId, String status);
 }

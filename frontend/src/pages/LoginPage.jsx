@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { apiFetch } from "../workflow/api/http";
+
 
 export default function LoginPage({ onLogin }) {
     const [username, setUsername] = useState("");
@@ -11,43 +13,32 @@ export default function LoginPage({ onLogin }) {
         return username.trim().length > 0 && password.length > 0 && !loading;
     }, [username, password, loading]);
 
-    const handleSubmit = async (e) => {
+    async function handleSubmit(e) {
         e.preventDefault();
         setError("");
         setLoading(true);
 
         try {
-            // 1) login -> sets session cookie (JSESSIONID)
-            const loginRes = await fetch("/api/auth/login", {
+            // ✅ ALWAYS fetch CSRF first
+            await apiFetch("/api/auth/csrf");
+
+            // login
+            await apiFetch("/api/auth/login", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({ username: username.trim(), password }),
+                body: { username: username.trim(), password },
             });
 
-            if (!loginRes.ok) {
-                const text = await loginRes.text().catch(() => "");
-                throw new Error(text || "Invalid username or password");
-            }
+            // load user
+            const me = await apiFetch("/api/auth/me");
 
-            // 2) load user from session cookie
-            const meRes = await fetch("/api/auth/me", {
-                credentials: "include",
-            });
-
-            if (!meRes.ok) {
-                const text = await meRes.text().catch(() => "");
-                throw new Error(text || "Login succeeded, but could not load profile");
-            }
-
-            const me = await meRes.json();
             onLogin({ username: username.trim(), me });
+
         } catch (err) {
             setError(err?.message || "Login failed");
         } finally {
             setLoading(false);
         }
-    };
+    }
 
     return (
         <div style={styles.page}>

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { workflowApi } from "../workflow/api/workflowApi";
+import { workflowApi, openReceptionPatientWorkflow  } from "../workflow/api/workflowApi";
+import { useNavigate } from "react-router-dom";
 
 function Card({ children, style }) {
     return (
@@ -123,6 +124,8 @@ function Spinner({ size = 14 }) {
     );
 }
 
+
+
 export default function ReceptionDashboard({ auth }) {
     const [patients, setPatients] = useState([]);
     const [firstName, setFirstName] = useState("");
@@ -132,6 +135,12 @@ export default function ReceptionDashboard({ auth }) {
     const [error, setError] = useState("");
     const [loadingList, setLoadingList] = useState(false);
     const [savingPatient, setSavingPatient] = useState(false);
+    const [openingId, setOpeningId] = useState(null);
+    const [sessionsPlanned, setSessionsPlanned] = useState(5);
+
+
+    const [closingId, setClosingId] = useState(null);
+
 
     // Optional: show if refresh actually happens
     const [lastRefreshed, setLastRefreshed] = useState(null);
@@ -184,6 +193,7 @@ export default function ReceptionDashboard({ auth }) {
                     firstName: firstName.trim(),
                     lastName: lastName.trim(),
                     treatmentArea: treatmentArea.trim(),
+                    sessionsPlanned: Number(sessionsPlanned)
                 },
                 auth
             );
@@ -276,7 +286,62 @@ export default function ReceptionDashboard({ auth }) {
             opacity: disabled ? 0.7 : 1,
             cursor: "pointer",
         }),
+
+        btnRow: (disabled) => ({
+            border: "1px solid var(--btn-secondary-border)",
+            background: disabled
+                ? "var(--surface)"
+                : "var(--btn-secondary-bg)",
+            color: "var(--btn-secondary-text)",
+            padding: "8px 14px",
+            borderRadius: 999,
+            fontWeight: 900,
+            fontSize: 12,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            whiteSpace: "nowrap",
+            cursor: disabled ? "not-allowed" : "pointer",
+            opacity: disabled ? 0.55 : 1,
+            transition: "all 0.18s ease",
+        }),
     };
+
+    const navigate = useNavigate();
+
+    async function handleOpenWorkflow(patientId) {
+        try {
+            setError("");
+            setOpeningId(patientId);
+
+            const instanceId = await openReceptionPatientWorkflow(patientId);
+            navigate(`/canvas/${instanceId}`);
+        } catch (e) {
+            // backend will send 409 with "Prescription already done."
+            const msg = e?.message || String(e);
+            if (msg.toLowerCase().includes("409") || msg.toLowerCase().includes("prescription already done")) {
+                setError("Prescription is already done for this patient.");
+            } else {
+                setError(msg);
+            }
+        } finally {
+            setOpeningId(null);
+        }
+    }
+
+    async function handleConfirmPaymentAndClose(patientId) {
+        try {
+            setError("");
+            setClosingId(patientId);
+            await workflowApi.confirmReceptionPaymentAndClose(patientId);
+            setError("Payment confirmed ✓ Case closed ✓");
+            await loadPatients();
+        } catch (e) {
+            setError(e?.message || String(e));
+        } finally {
+            setClosingId(null);
+        }
+    }
 
     return (
         <div style={styles.page}>
@@ -346,7 +411,28 @@ export default function ReceptionDashboard({ auth }) {
                                 </div>
                             </div>
 
-                            <button type="button" onClick={addPatient} disabled={savingPatient} style={styles.btnPrimary(savingPatient)}>
+                            {/* ✅ ADD THIS BLOCK HERE */}
+                            <div style={{ display: "grid", gap: 6 }}>
+                                <label style={{ fontSize: 12, fontWeight: 900, color: "var(--text-muted)" }}>
+                                    Sessions planned
+                                </label>
+
+                                <input
+                                    type="number"
+                                    min="0"
+                                    max="60"
+                                    value={sessionsPlanned}
+                                    onChange={(e) => setSessionsPlanned(e.target.value)}
+                                    style={inputStyle}
+                                />
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={addPatient}
+                                disabled={savingPatient}
+                                style={styles.btnPrimary(savingPatient)}
+                            >
                                 {savingPatient ? "Saving..." : "Add Patient"}
                             </button>
                         </div>
@@ -387,6 +473,8 @@ export default function ReceptionDashboard({ auth }) {
                                     <th style={thStyle}>Name</th>
                                     <th style={thStyle}>Date added</th>
                                     <th style={thStyle}>Progress</th>
+                                    <th style={thStyle}>Action</th>
+                                    <th style={thStyle}>Payment</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -402,29 +490,76 @@ export default function ReceptionDashboard({ auth }) {
                                         const done = typeof p.sessionsDone === "number" ? p.sessionsDone : null;
                                         const planned = typeof p.sessionsPlanned === "number" ? p.sessionsPlanned : null;
                                         const progress = done != null && planned != null ? `${done}/${planned}` : null;
-
+                                        const canOpen = String(p.statusLabel || "").toLowerCase() === "added";
+                                        const busy = openingId === p.id;
+                                        const isPaymentStep =
+                                            ["t_billing", "t_close_case"].includes(String(p.currentNodeId || ""));
+                                        const closingBusy = closingId === p.id; // this line must be inside map (see below)
                                         return (
                                             <tr key={p.id}>
                                                 <td style={tdStyle}>
-                                                    <div style={{ fontWeight: 1000, color: "var(--text-main)" }}>{p.displayLabel}</div>
-                                                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>
+                                                    <div style={{
+                                                        fontWeight: 1000,
+                                                        color: "var(--text-main)"
+                                                    }}>{p.displayLabel}</div>
+                                                    <div style={{
+                                                        fontSize: 12,
+                                                        color: "var(--text-muted)",
+                                                        marginTop: 2
+                                                    }}>
                                                         {p.treatmentArea || "—"}
                                                     </div>
                                                 </td>
 
                                                 <td style={tdStyle}>
-                                                    <div style={{ fontSize: 13, color: "var(--text-main)", opacity: 0.95 }}>
+                                                    <div style={{
+                                                        fontSize: 13,
+                                                        color: "var(--text-main)",
+                                                        opacity: 0.95
+                                                    }}>
                                                         {fmtDate(p.createdAt)}
                                                     </div>
                                                 </td>
 
                                                 <td style={tdStyle}>
-                                                    <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+                                                    <div style={{
+                                                        display: "flex",
+                                                        gap: 10,
+                                                        alignItems: "center",
+                                                        flexWrap: "wrap"
+                                                    }}>
                                                         <Pill tone={tone}>{p.statusLabel || "—"}</Pill>
                                                         {progress && <Pill tone="neutral">Session {progress}</Pill>}
                                                     </div>
                                                 </td>
+                                                <td style={tdStyle}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleOpenWorkflow(p.id)}
+                                                        disabled={!canOpen || busy}
+                                                        style={styles.btnRow(!canOpen || busy)}
+                                                        title={!canOpen ? "Prescription already done" : "Open workflow"}
+                                                    >
+                                                        {busy ? <Spinner size={14}/> : "🧾"}
+                                                        {canOpen ? "Open workflow" : "Done"}
+                                                    </button>
+                                                </td >
+                                                <td style={tdStyle}>
+                                                    {isPaymentStep && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleConfirmPaymentAndClose(p.id)}
+                                                            disabled={closingBusy}
+                                                            style={styles.btnPrimary(closingBusy)}
+                                                            title="Confirm payment and close the case"
+                                                        >
+                                                            {closingBusy ? "Processing…" : "Confirm payment & close"}
+                                                        </button>
+                                                    )}
+                                                </td>
+
                                             </tr>
+
                                         );
                                     })
                                 )}

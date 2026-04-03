@@ -10,6 +10,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.security.web.csrf.CsrfToken;
+
+
 
 import java.util.List;
 
@@ -50,8 +55,12 @@ public class AuthController {
 
     @GetMapping("/me")
     public MeResponse me(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Not logged in");
+        }
         return toMe(authentication);
     }
+
 
     private MeResponse toMe(Authentication auth) {
         List<String> roles = auth.getAuthorities()
@@ -61,4 +70,13 @@ public class AuthController {
 
         return new MeResponse(auth.getName(), roles);
     }
+
+
+    @GetMapping("/csrf")
+    public CsrfToken csrf(CsrfToken token) {
+        return token;
+    }
+
 }
+
+

@@ -1,0 +1,358 @@
+/* frontend/src/styles/AdminDashboard.css */
+
+/* Use more width on large screens, still responsive */
+.adminShell {
+    width: 100%;
+    max-width: 1800px;
+    margin: 0 auto;
+
+    padding: clamp(16px, 2vw, 28px);
+    display: grid;
+    gap: 16px;
+}
+
+.adminTopbar {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.adminTitle {
+    display: grid;
+    gap: 4px;
+}
+
+.adminTitle h2 {
+    margin: 0;
+    font-size: 22px;
+    letter-spacing: -0.3px;
+}
+
+.adminTitle p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 650;
+}
+
+/* -------------------------
+   Responsive grid layout
+   - mobile: 1 column
+   - >=980px: 2 columns
+   - >=1280px: 3 columns
+   ------------------------- */
+
+.adminGrid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+    align-items: start;
+}
+
+/* 2 columns (tablet / small desktop): left sidebar + logs */
+@media (min-width: 980px) {
+    .adminGrid {
+        grid-template-columns: minmax(320px, 420px) 1fr;
+    }
+}
+
+/* 3 columns (large desktop): create user | users list | logs */
+@media (min-width: 1280px) {
+    .adminGrid {
+        grid-template-columns: minmax(320px, 420px) minmax(320px, 420px) 1fr;
+    }
+}
+
+/* Panels in the grid */
+.adminPanel {
+    display: grid;
+    gap: 16px;
+}
+
+/* Make logs take the remaining height nicely */
+.adminLogsCard {
+    min-height: 520px;
+}
+
+.adminCard {
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.adminCardHeader {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.adminCardHeader h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 950;
+    letter-spacing: 0.2px;
+}
+
+.adminCardBody {
+    padding: 16px;
+}
+
+.adminPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-soft);
+    background: rgba(2, 132, 199, 0.08);
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.adminRow {
+    display: grid;
+    gap: 10px;
+}
+
+.adminField {
+    display: grid;
+    gap: 6px;
+}
+
+.adminLabel {
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--text-muted);
+}
+
+.adminInput,
+.adminSelect {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border-soft);
+    background: var(--input-bg);
+    color: var(--text-main);
+    outline: none;
+    font-size: 14px;
+}
+
+.adminInput:focus,
+.adminSelect:focus {
+    box-shadow: 0 0 0 3px var(--accent-color-soft);
+    border-color: rgba(59, 130, 246, 0.35);
+}
+
+.adminBtnPrimary {
+    border: none;
+    border-radius: 14px;
+    padding: 11px 12px;
+    font-weight: 950;
+    cursor: pointer;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+}
+
+.adminBtnPrimary:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.adminMsg {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    border: 1px solid var(--border-soft);
+    background: rgba(127, 127, 127, 0.06);
+    font-size: 13px;
+    font-weight: 850;
+}
+
+.adminMsgErr {
+    border-color: var(--danger-border);
+    background: var(--danger-bg);
+    color: var(--danger-text);
+}
+
+.adminMsgOk {
+    border-color: var(--success-border);
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+
+.adminToolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+
+.adminSearch {
+    min-width: 240px;
+    flex: 1;
+}
+
+.adminKpis {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+@media (max-width: 640px) {
+    .adminKpis {
+        grid-template-columns: 1fr;
+    }
+}
+
+.kpi {
+    padding: 12px;
+    border-radius: 18px;
+    background: rgba(127, 127, 127, 0.06);
+    border: 1px solid var(--border-soft);
+}
+
+.kpiLabel {
+    font-size: 12px;
+    font-weight: 900;
+    color: var(--text-muted);
+}
+
+.kpiValue {
+    margin-top: 6px;
+    font-size: 18px;
+    font-weight: 1000;
+}
+
+.logsList {
+    display: grid;
+    gap: 10px;
+}
+
+.patientCard {
+    border: 1px solid var(--border-soft);
+    border-radius: 18px;
+    overflow: hidden;
+    background: rgba(127, 127, 127, 0.04);
+}
+
+.patientHead {
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.patientName {
+    font-weight: 950;
+}
+
+.patientMeta {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--text-muted);
+}
+
+.logBox {
+    padding: 12px 14px;
+}
+
+/* Better wrapping so log lines don't stretch */
+.logLine {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 6px 0;
+    border-bottom: 1px dashed rgba(127, 127, 127, 0.22);
+}
+
+.logLine:last-child {
+    border-bottom: none;
+}
+
+.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    monospace;
+    font-size: 12px;
+    opacity: 0.95;
+}
+
+/* -----------------------
+   Users list (Admin view)
+   ----------------------- */
+
+.usersList {
+    display: grid;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.userRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border-soft);
+    background: rgba(127, 127, 127, 0.05);
+}
+
+.userName {
+    font-weight: 950;
+}
+
+.userMeta {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 850;
+}
+
+.roleBadge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border-soft);
+    background: rgba(2, 132, 199, 0.08);
+    color: var(--text-main);
+    font-size: 12px;
+    font-weight: 950;
+}
+
+/* Users list scroll inside its card on large screens */
+.usersScroll {
+    max-height: 520px;
+    overflow: auto;
+    padding-right: 4px;
+}
+
+/* nicer scrollbar (optional) */
+.usersScroll::-webkit-scrollbar {
+    width: 10px;
+}
+
+.usersScroll::-webkit-scrollbar-thumb {
+    background: rgba(127, 127, 127, 0.25);
+    border-radius: 999px;
+}

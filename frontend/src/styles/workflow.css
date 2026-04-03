@@ -455,3 +455,202 @@
 .wfCanvasShell .react-flow__edge-path {
     stroke-linecap: round;
 }
+
+/* =========================
+   DARK/LIGHT THEME TOKENS
+   Put this at the very bottom of workflow.css
+   ========================= */
+
+/* Light defaults */
+:root {
+    --wf-surface: #ffffff;
+    --wf-surface-2: rgba(255, 255, 255, 0.78);
+    --wf-surface-3: rgba(248, 250, 252, 0.85);
+
+    --wf-bg: #f6f8fb;
+    --wf-dots: rgba(229, 231, 235, 1);
+
+    --wf-text: rgba(15, 23, 42, 0.92);
+    --wf-muted: rgba(15, 23, 42, 0.65);
+
+    --wf-border: rgba(15, 23, 42, 0.10);
+    --wf-border-soft: rgba(15, 23, 42, 0.08);
+
+    --wf-shadow: 0 18px 50px rgba(0, 0, 0, 0.10);
+    --wf-shadow-card: 0 14px 30px rgba(0, 0, 0, 0.06);
+    --wf-shadow-group: 0 18px 40px rgba(0, 0, 0, 0.06);
+}
+
+/* Dark overrides
+   IMPORTANT: use the selector your app actually applies for dark mode.
+   If you already have a different one, replace ".dark" with it. */
+.dark, [data-theme="dark"] {
+    --wf-surface: rgba(15, 23, 42, 0.82);
+    --wf-surface-2: rgba(15, 23, 42, 0.70);
+    --wf-surface-3: rgba(15, 23, 42, 0.72);
+
+    --wf-bg: #0b1220;
+    --wf-dots: rgba(148, 163, 184, 0.18);
+
+    --wf-text: rgba(248, 250, 252, 0.92);
+    --wf-muted: rgba(248, 250, 252, 0.70);
+
+    --wf-border: rgba(148, 163, 184, 0.22);
+    --wf-border-soft: rgba(148, 163, 184, 0.16);
+
+    --wf-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+    --wf-shadow-card: 0 14px 30px rgba(0, 0, 0, 0.35);
+    --wf-shadow-group: 0 18px 40px rgba(0, 0, 0, 0.40);
+}
+
+/* =========================
+   APPLY TOKENS (override light hardcodes)
+   ========================= */
+
+.tb {
+    background: linear-gradient(180deg, var(--wf-bg) 0%, var(--wf-surface) 60%) !important;
+    border-right: 1px solid var(--wf-border-soft) !important;
+    color: var(--wf-text) !important;
+}
+
+.tb-header {
+    background: var(--wf-surface-3) !important;
+    border-bottom: 1px solid var(--wf-border-soft) !important;
+}
+
+.tb-hSub,
+.tb-groupDesc,
+.tb-subtitle,
+.tb-emptySub {
+    color: var(--wf-muted) !important;
+    opacity: 1 !important;
+}
+
+.tb-iconBtn {
+    background: var(--wf-surface) !important;
+    border: 1px solid var(--wf-border) !important;
+    color: var(--wf-text) !important;
+}
+
+.tb-search {
+    background: var(--wf-surface) !important;
+    border: 1px solid var(--wf-border) !important;
+    color: var(--wf-text) !important;
+}
+
+.tb-search::placeholder {
+    color: var(--wf-muted) !important;
+}
+
+.tb-group {
+    background: var(--wf-surface-2) !important;
+    border: 1px solid var(--wf-border-soft) !important;
+    box-shadow: var(--wf-shadow-group) !important;
+    color: var(--wf-text) !important;
+}
+
+.tb-card {
+    background: var(--wf-surface) !important;
+    border: 1px solid var(--wf-border) !important;
+    box-shadow: var(--wf-shadow-card) !important;
+    color: var(--wf-text) !important;
+}
+
+.tb-ic {
+    background: rgba(148, 163, 184, 0.12) !important;
+    border: 1px solid var(--wf-border-soft) !important;
+}
+
+/* Scrollbar tweak in dark */
+.dark .tb-body::-webkit-scrollbar-thumb,
+[data-theme="dark"] .tb-body::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.28) !important;
+    border: 3px solid rgba(15, 23, 42, 0.85) !important;
+}
+
+/* Canvas shell */
+.wfCanvasShell {
+    background: var(--wf-bg) !important;
+    border: 1px solid var(--wf-border-soft) !important;
+    box-shadow: var(--wf-shadow) !important;
+}
+
+/* ReactFlow controls */
+.wfCanvasShell .react-flow__controls button {
+    background: var(--wf-surface-3) !important;
+    border: 1px solid var(--wf-border-soft) !important;
+    color: var(--wf-text) !important;
+}
+
+/* Edge label color */
+.wfCanvasShell .react-flow__edge-text {
+    fill: var(--wf-muted) !important;
+}
+
+/* Minimap */
+.wfCanvasShell .react-flow__minimap {
+    border: 1px solid var(--wf-border) !important;
+    box-shadow: var(--wf-shadow-card) !important;
+}
+
+/* If you use .workflow-canvas class anywhere */
+.workflow-canvas {
+    background-color: var(--wf-bg) !important;
+    background-image: radial-gradient(circle, var(--wf-dots) 1px, transparent 1px) !important;
+}
+
+
+/* =========================
+   WfNode variables (required by WfNode.jsx)
+   ========================= */
+
+/* Light */
+:root {
+    --wf-node-bg: #ffffff;
+    --wf-node-border: rgba(15, 23, 42, 0.10);
+
+    --wf-node-shadow: 0 10px 24px rgba(0,0,0,0.08);
+    --wf-node-shadow-selected: 0 18px 44px rgba(0,0,0,0.14);
+
+    --wf-node-icon-bg: rgba(59,130,246,0.10);
+    --wf-node-chip-bg: rgba(148,163,184,0.16);
+
+    --wf-node-handle-bg: rgba(100,116,139,0.85);
+    --wf-node-handle-border: rgba(255,255,255,0.95);
+
+    --wf-text: rgba(15,23,42,0.92);
+    --wf-subtext: rgba(15,23,42,0.65);
+
+    --wf-node-shadow-strong: var(--wf-node-shadow-selected);
+}
+
+.dark, [data-theme="dark"] {
+    --wf-node-shadow-strong: var(--wf-node-shadow-selected);
+}
+
+/* Dark (same selector you already use) */
+.dark, [data-theme="dark"] {
+    --wf-node-bg: linear-gradient(
+            180deg,
+            rgba(30,41,59,0.86) 0%,
+            rgba(15,23,42,0.86) 100%
+    );
+    --wf-node-border: rgba(148,163,184,0.22);
+
+    --wf-node-shadow: 0 10px 26px rgba(0,0,0,0.45);
+    --wf-node-shadow-selected: 0 18px 44px rgba(0,0,0,0.55);
+
+    --wf-node-icon-bg: rgba(96,165,250,0.14);
+    --wf-node-chip-bg: rgba(148,163,184,0.18);
+
+    --wf-node-handle-bg: rgba(148,163,184,0.55);
+    --wf-node-handle-border: rgba(15,23,42,0.60);
+
+    --wf-text: rgba(248,250,252,0.92);
+    --wf-subtext: rgba(248,250,252,0.70);
+
+
+
+}
+
+

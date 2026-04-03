@@ -1,6 +1,18 @@
 // src/workflow/api/workflowApi.js
 import { apiFetch } from "./http";
 
+
+export function openReceptionPatientWorkflow(patientId) {
+    return apiFetch(`/api/reception/patients/${patientId}/open-workflow`, {
+        method: "POST",
+    });
+}
+
+export function confirmReceptionPaymentAndClose(patientId) {
+    return apiFetch(`/api/reception/patients/${patientId}/confirm-payment-and-close`, {
+        method: "POST",
+    });
+}
 export const workflowApi = {
     // -------------------------
     // Reception
@@ -25,20 +37,47 @@ export const workflowApi = {
             method: "POST",
         }),
 
+
+
+    listAdminPatients: () => apiFetch("/api/admin/patients"),
+
+    createUser: ({ username, password, role }) =>
+        apiFetch("/api/admin/users", {
+            method: "POST",
+            body: { username, password, role },
+        }),
+
+    /** ✅ ADD THIS **/
+    listAdminUsers: () => apiFetch("/api/admin/users"),
+
+
+
     // -------------------------
     // Instances (Canvas)
     // -------------------------
     getInstance: (instanceId) =>
         apiFetch(`/api/workflow-instances/${instanceId}`),
 
+
     listInstanceTasks: (instanceId) =>
         apiFetch(`/api/workflow-instances/${instanceId}/tasks`),
+
+    jumpToNode: (instanceId, nodeId) =>
+        apiFetch(`/api/workflow-instances/${instanceId}/jump/${encodeURIComponent(nodeId)}`, {
+            method: "POST",
+        }),
 
     // -------------------------
     // Definitions
     // -------------------------
     getDefinition: (definitionId) =>
         apiFetch(`/api/workflow-definitions/${definitionId}`),
+
+    updateDefinition: (definitionId, payload) =>
+        apiFetch(`/api/workflow-definitions/${definitionId}`, {
+            method: "PUT",
+            body: payload,
+        }),
 
     // -------------------------
     // Layout
@@ -56,16 +95,24 @@ export const workflowApi = {
     // Tasks
     // -------------------------
     listTasks: (status = "OPEN") =>
-        apiFetch(`/api/tasks?status=${encodeURIComponent(status)}`),
+        apiFetch(`/api/tasks-with-patient?status=${encodeURIComponent(status)}`),
 
     getTask: (taskId) =>
         apiFetch(`/api/tasks/${taskId}`),
 
+// completeTask: (taskId, values) =>
+        // apiFetch(`/api/tasks/${taskId}/complete`, {
+           // method: "POST",
+           // body: { data: values },
+        // }),
+
     completeTask: (taskId, values) =>
         apiFetch(`/api/tasks/${taskId}/complete`, {
             method: "POST",
-            body: { data: values },
+            body: { data: values ?? {} },
         }),
+
+
 
     // -------------------------
     // Overlay
@@ -78,4 +125,27 @@ export const workflowApi = {
             method: "PUT",
             body: overlay,
         }),
+
+
+
+    // --- add inside workflowApi ---
+    deployDefinition: (definitionId) =>
+        apiFetch(`/api/workflow-definitions/${definitionId}/deploy`, {
+            method: "POST",
+        }),
+
+    startInstance: ({ deploymentId, businessKey }) =>
+        apiFetch(`/api/workflow-instances`, {
+            method: "POST",
+            body: { deploymentId, businessKey },
+        }),
+
+    confirmReceptionPaymentAndClose: (patientId) =>
+        apiFetch(`/api/reception/patients/${patientId}/confirm-payment-and-close`, {
+            method: "POST",
+        }),
+
+
 };
+
+

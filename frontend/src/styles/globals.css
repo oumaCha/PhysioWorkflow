@@ -51,6 +51,26 @@
 
     /* --- Selection highlight --- */
     --selected-soft: rgba(2, 132, 199, 0.08);
+
+
+    --panel-bg: rgba(15, 23, 42, 0.06);
+    --panel-bg-hover: rgba(15, 23, 42, 0.10);
+    --text-color: rgba(15, 23, 42, 0.92);
+    --border-color: rgba(15, 23, 42, 0.12);
+
+    --accent-color: #2563eb;
+    --accent-color-hover: #1d4ed8;
+    --accent-color-soft: rgba(59, 130, 246, 0.25);
+
+    --shadow-sm: 0 8px 18px rgba(2, 6, 23, 0.10);
+    --shadow-md: 0 12px 28px rgba(2, 6, 23, 0.14);
+
+    --app-bg: #ffffff;
+    --panel-bg: #ffffff;
+    --text-color: #0f172a;
+    --border-color: rgba(15, 23, 42, 0.12);
+
+
 }
 
 /* ================================
@@ -110,7 +130,38 @@ html[data-theme="dark"],
     --success-border: rgba(34, 197, 94, 0.30);
 
     --selected-soft: rgba(56, 189, 248, 0.14);
+
+
 }
+
+
+
+
+
+/* If your dark theme is controlled by a class like .dark */
+.dark, [data-theme="dark"] {
+    --app-bg: #0b1220;
+    --panel-bg: rgba(15, 23, 42, 0.72);
+    --text-color: rgba(248, 250, 252, 0.92);
+    --border-color: rgba(148, 163, 184, 0.22);
+}
+
+/* Theme-aware ReactFlow canvas */
+.wfCanvasShell {
+    background: var(--canvas-bg, #ffffff);
+    color: var(--text-color, #0f172a);
+}
+
+:root {
+    --canvas-bg: #ffffff;
+    --canvas-dots: rgba(148, 163, 184, 0.55);
+}
+
+.dark, [data-theme="dark"] {
+    --canvas-bg: #0b1220;
+    --canvas-dots: rgba(148, 163, 184, 0.18);
+}
+
 
 /* ================================
    GLOBAL BASE STYLES
@@ -151,5 +202,329 @@ table {
 }
 
 
+/* =========================
+   Workflow Canvas Toolbar Buttons
+   Uses existing theme variables
+   ========================= */
+
+.wfToolbar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.wfBtn {
+    appearance: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.2px;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    cursor: pointer;
+    user-select: none;
+
+    border: 1px solid var(--border-color);
+    background: var(--panel-bg);
+    color: var(--text-color);
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+            background 0.15s ease,
+            transform 0.12s ease,
+            box-shadow 0.15s ease,
+            border-color 0.15s ease;
+}
+
+.wfBtn:hover {
+    background: var(--panel-bg-hover, rgba(0,0,0,0.04));
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.wfBtn:active {
+    transform: translateY(0px);
+}
+
+.wfBtn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--accent-color-soft, rgba(59,130,246,0.25));
+}
+
+/* Primary button (Save) */
+.wfBtnPrimary {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+}
+
+.wfBtnPrimary:hover {
+    background: var(--accent-color-hover);
+}
+
+/* Ghost button (Back) */
+.wfBtnGhost {
+    background: transparent;
+    box-shadow: none;
+}
+
+/* Disabled */
+.wfBtn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Responsive */
+.wfBtnText {
+    white-space: nowrap;
+}
+.wfBtnIcon {
+    width: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+/* Editor surface colors (light/dark via your theme variables) */
+.wfEditorRoot {
+    display: flex;
+    height: 78vh;
+    background: var(--app-bg, #fff);
+    color: var(--text-color, #0f172a);
+}
+
+.wfEditorMain {
+    flex: 1;
+    position: relative;
+    background: var(--app-bg, #fff);
+}
+
+/* Toolbox surface */
+.wfToolboxShell {
+    background: var(--panel-bg, #fff);
+    color: var(--text-color, #0f172a);
+    border-right: 1px solid var(--border-color, rgba(15, 23, 42, 0.12));
+}
+
+
+/* clinical notes dark mode */
+:root {
+    --notes-overlay: rgba(0,0,0,0.25);
+
+    --notes-panel-bg: #ffffff;
+    --notes-panel-border: rgba(15,23,42,0.12);
+    --notes-panel-shadow: -12px 0 30px rgba(0,0,0,0.12);
+
+    --notes-text: rgba(15,23,42,0.92);
+    --notes-muted: rgba(15,23,42,0.70);
+
+    --notes-btn-bg: #ffffff;
+    --notes-btn-border: rgba(15,23,42,0.15);
+    --notes-btn-text: rgba(15,23,42,0.92);
+
+    --notes-primary-bg: #0f172a;
+    --notes-primary-text: #ffffff;
+
+    --notes-input-bg: #ffffff;
+    --notes-input-border: rgba(15,23,42,0.18);
+    --notes-input-text: rgba(15,23,42,0.92);
+    --notes-input-placeholder: rgba(15,23,42,0.45);
+    --notes-focus: rgba(59,130,246,0.25);
+}
+
+/* same selector you used in workflow.css */
+.dark, [data-theme="dark"] {
+    --notes-overlay: rgba(2,6,23,0.55);
+
+    --notes-panel-bg: rgba(15,23,42,0.92);
+    --notes-panel-border: rgba(148,163,184,0.22);
+    --notes-panel-shadow: -12px 0 34px rgba(0,0,0,0.55);
+
+    --notes-text: rgba(248,250,252,0.92);
+    --notes-muted: rgba(248,250,252,0.70);
+
+    --notes-btn-bg: rgba(15,23,42,0.60);
+    --notes-btn-border: rgba(148,163,184,0.22);
+    --notes-btn-text: rgba(248,250,252,0.92);
+
+    --notes-primary-bg: #2563eb;      /* nicer in dark */
+    --notes-primary-text: #ffffff;
+
+    --notes-input-bg: rgba(2,6,23,0.35);
+    --notes-input-border: rgba(148,163,184,0.22);
+    --notes-input-text: rgba(248,250,252,0.92);
+    --notes-input-placeholder: rgba(248,250,252,0.45);
+    --notes-focus: rgba(96,165,250,0.30);
+}
+
+
+:root {
+    --wf-node-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --wf-node-shadow-strong: 0 4px 14px rgba(0,0,0,0.12);
+}
+
+
+[data-theme="dark"] {
+    --wf-node-shadow: 0 4px 16px rgba(0,0,0,0.35);
+    --wf-node-shadow-strong: 0 6px 22px rgba(0,0,0,0.45);
+}
+
+
+
+
+
+/* mobile version = shorter text, not hidden */
+@media (max-width: 600px) {
+
+    .wfBtnText {
+        font-size: 13px;
+    }
+
+    .wfBtn {
+        padding: 10px 12px;
+    }
+
+}
+
+
+
+/* ===== Workflow context menu theme tokens ===== */
+:root {
+    --wf-menu-bg: #ffffff;
+    --wf-menu-border: rgba(148, 163, 184, 0.5);
+    --wf-menu-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+
+    --wf-item-text: #0f172a;
+    --wf-item-muted: rgba(15, 23, 42, 0.6);
+
+    --wf-item-hover: rgba(15, 23, 42, 0.06);
+    --wf-item-active: rgba(15, 23, 42, 0.10);
+
+    --wf-focus-ring: rgba(59, 130, 246, 0.25);
+    --wf-focus-border: rgba(59, 130, 246, 0.8);
+
+    --wf-danger: #dc2626;
+    --wf-danger-hover: rgba(220, 38, 38, 0.10);
+    --wf-danger-active: rgba(220, 38, 38, 0.16);
+}
+
+/* If your app uses .dark on <html> or <body> */
+.dark {
+    --wf-menu-bg: #0b1220;
+    --wf-menu-border: rgba(148, 163, 184, 0.22);
+    --wf-menu-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+
+    --wf-item-text: rgba(226, 232, 240, 0.95);
+    --wf-item-muted: rgba(226, 232, 240, 0.55);
+
+    --wf-item-hover: rgba(226, 232, 240, 0.08);
+    --wf-item-active: rgba(226, 232, 240, 0.12);
+
+    --wf-focus-ring: rgba(59, 130, 246, 0.35);
+    --wf-focus-border: rgba(59, 130, 246, 0.95);
+}
+
+/* Optional: if you use data-theme="dark" instead of .dark */
+[data-theme="dark"] {
+    --wf-menu-bg: #0b1220;
+    --wf-menu-border: rgba(148, 163, 184, 0.22);
+    --wf-menu-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+
+    --wf-item-text: rgba(226, 232, 240, 0.95);
+    --wf-item-muted: rgba(226, 232, 240, 0.55);
+
+    --wf-item-hover: rgba(226, 232, 240, 0.08);
+    --wf-item-active: rgba(226, 232, 240, 0.12);
+
+    --wf-focus-ring: rgba(59, 130, 246, 0.35);
+    --wf-focus-border: rgba(59, 130, 246, 0.95);
+}
+
+/* ===== Context menu styles ===== */
+.wfCtxMenu {
+    position: fixed;
+    z-index: 9999;
+    width: 220px;
+    padding: 8px;
+    border-radius: 12px;
+
+    background: var(--wf-menu-bg);
+    border: 1px solid var(--wf-menu-border);
+    box-shadow: var(--wf-menu-shadow);
+}
+
+.wfCtxSep {
+    height: 1px;
+    background: var(--wf-menu-border);
+    margin: 6px 0;
+}
+
+.wfMenuItem {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 10px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+
+    color: var(--wf-item-text);
+    transition: background 120ms ease, transform 80ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.wfMenuItem:hover {
+    background: var(--wf-item-hover);
+}
+
+.wfMenuItem:active {
+    background: var(--wf-item-active);
+    transform: scale(0.98);
+}
+
+.wfMenuItem:focus-visible {
+    outline: none;
+    border-color: var(--wf-focus-border);
+    box-shadow: 0 0 0 3px var(--wf-focus-ring);
+}
+
+.wfMenuItem[disabled] {
+    cursor: not-allowed;
+    opacity: 0.45;
+}
+
+.wfMenuShortcut {
+    font-size: 12px;
+    opacity: 0.6;
+    white-space: nowrap;
+    color: var(--wf-item-muted);
+}
+
+.wfMenuItemDanger {
+    color: var(--wf-danger);
+}
+
+.wfMenuItemDanger:hover {
+    background: var(--wf-danger-hover);
+}
+
+.wfMenuItemDanger:active {
+    background: var(--wf-danger-active);
+}
 
 

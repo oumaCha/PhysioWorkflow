@@ -38,15 +38,7 @@ public class WorkflowDeploymentService {
     }
 
     public void ensureAtLeastOneDeploymentExists() {
-        if (deploymentRepository.count() == 0) {
-
-            var latestDef = definitionRepository
-                    .findTopByOrderByIdDesc()
-                    .orElseThrow(() ->
-                            new IllegalStateException("No workflow definitions exist"));
-
-            deploy(latestDef.getId());
-        }
+        // No-op. Deployment handled by WorkflowDeploymentSeeder.
     }
 
 }

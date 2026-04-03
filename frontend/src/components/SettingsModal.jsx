@@ -137,27 +137,6 @@ export default function SettingsModal({ open, onClose, username, role }) {
                             </div>
                         )}
 
-                        {tab === "language" && (
-                            <div className="smSection">
-                                <div className="smRow">
-                                    <div className="smLabel">Language</div>
-                                    <div className="smValue">
-                                        <select
-                                            className="smSelect"
-                                            value={lang}
-                                            onChange={(e) => setLang(e.target.value)}
-                                        >
-                                            <option value="en">English</option>
-                                            <option value="de">Deutsch</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="smHint">
-                                    This stores your preference locally. Later you can connect it to i18n.
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </div>
 

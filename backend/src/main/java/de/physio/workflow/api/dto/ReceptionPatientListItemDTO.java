@@ -12,6 +12,9 @@ public class ReceptionPatientListItemDTO {
     private int sessionsPlanned;     // e.g. 5
     private Instant createdAt;
 
+    private Long workflowInstanceId;
+    private String currentNodeId;
+
     public ReceptionPatientListItemDTO(
             Long id,
             String displayLabel,
@@ -19,7 +22,9 @@ public class ReceptionPatientListItemDTO {
             String statusLabel,
             int sessionsDone,
             int sessionsPlanned,
-            Instant createdAt
+            Instant createdAt,
+            Long workflowInstanceId,
+            String currentNodeId
     ) {
         this.id = id;
         this.displayLabel = displayLabel;
@@ -28,6 +33,8 @@ public class ReceptionPatientListItemDTO {
         this.sessionsDone = sessionsDone;
         this.sessionsPlanned = sessionsPlanned;
         this.createdAt = createdAt;
+        this.workflowInstanceId = workflowInstanceId;
+        this.currentNodeId = currentNodeId;
     }
 
     public Long getId() {
@@ -57,4 +64,7 @@ public class ReceptionPatientListItemDTO {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    public Long getWorkflowInstanceId() { return workflowInstanceId; }
+    public String getCurrentNodeId() { return currentNodeId; }
 }
